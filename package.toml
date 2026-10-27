@@ -1,0 +1,6 @@
+[package]
+version = "0.1.0"
+name = { en = "Douyin downloader", zh = "抖音下载" }
+summary = { en = "Download Douyin and TikTok videos and photo posts without watermark", zh = "下载抖音、TikTok 的视频和图文，不带水印" }
+author = "SHORiN-KiWATA"
+icon = "video"
