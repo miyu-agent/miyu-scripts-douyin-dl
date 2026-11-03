@@ -73,7 +73,7 @@ def emit(md, data):
 
 
 def cache_dir():
-    path = os.environ.get("MIYU_SCRIPT_CACHE_DIR")
+    path = os.environ.get("MIYU_CACHE_DIR")
     if path:
         os.makedirs(path, exist_ok=True)
     return path
@@ -540,10 +540,10 @@ def sniff(data):
 
 
 class Attacher:
-    """Copies up to four images the AI can see into MIYU_SCRIPT_IMAGES_DIR."""
+    """Copies up to four images the AI can see into MIYU_IMAGES_DIR."""
 
     def __init__(self):
-        self.dir = os.environ.get("MIYU_SCRIPT_IMAGES_DIR")
+        self.dir = os.environ.get("MIYU_IMAGES_DIR")
         self.count = 0
 
     def add(self, data, name):
