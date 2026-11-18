@@ -98,6 +98,23 @@ class LookalikeHost(Sandbox):
             with self.subTest(text=text):
                 self.assertEqual(self.mod.platform_of(self.mod.extract_url(text)), "tiktok")
 
+    # 抖音那边同理：evil-douyin.com 不是抖音；真的抖音域名照旧认。
+    def test_lookalike_host_is_not_douyin(self):
+        url = self.mod.extract_url("https://evil-douyin.com/video/1")
+        if url is not None:
+            self.assertIsNone(self.mod.platform_of(url))
+        for text in ("https://v.douyin.com/abc/", "https://www.douyin.com/video/1",
+                     "https://www.iesdouyin.com/share/video/1"):
+            with self.subTest(text=text):
+                self.assertEqual(self.mod.platform_of(self.mod.extract_url(text)), "douyin")
+
+    # 短链跟完重定向落到别的网站：给友好报错，不交给 yt-dlp。
+    def test_short_link_landing_elsewhere_is_refused(self):
+        self.mod.follow = lambda url, timeout=15: "https://evil.example/@a/video/1"
+        result, out = self.call({"action": "info", "url": "https://vm.tiktok.com/ZMabc/"})
+        self.assertIsInstance(result, self.mod.Failure, f"应给友好报错，实际返回 {result!r}：{out}")
+        self.assertEqual(self.calls, [], "不该联网、不该交给 yt-dlp")
+
 
 class SniffJpegFill(Sandbox):
     # 审计 #173-d：JPEG 的 marker 前可以有任意个 0xFF 填充字节（ITU T.81 B.1.1.2）。

@@ -120,9 +120,9 @@ def follow(url, timeout=15):
 
 def platform_of(url):
     host = (urllib.parse.urlsplit(url).hostname or "").lower()
-    if host.endswith(("douyin.com", "iesdouyin.com")):
+    if any(host == d or host.endswith("." + d) for d in ("douyin.com", "iesdouyin.com")):
         return "douyin"
-    if host.endswith("tiktok.com"):
+    if host == "tiktok.com" or host.endswith(".tiktok.com"):
         return "tiktok"
     return None
 
@@ -143,6 +143,8 @@ def canonicalize(url):
         if not re.search(r"/(?:video|photo)/\d+", url):
             progress("展开短链接")
             url = follow(url)
+            if platform_of(url) != "tiktok":
+                raise Failure(f"TikTok 短链接跳到了别的网站：{url}", "换一条新的分享链接再试")
         # yt-dlp only matches /video/; a photo post answers under the same id.
         return url.split("?", 1)[0].replace("/photo/", "/video/"), platform, None
     raise Failure(f"只认抖音和 TikTok 的链接：{url}")
@@ -529,6 +531,9 @@ def sniff(data):
                 i += 1
                 continue
             marker = data[i + 1]
+            if marker == 0xFF:
+                i += 1
+                continue
             if marker in (0xD8, 0x01) or 0xD0 <= marker <= 0xD7:
                 i += 2
                 continue
